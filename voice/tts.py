@@ -8,7 +8,7 @@ class TextToSpeech:
     Utilizes the Kokoro ONNX model for high-quality, local speech synthesis.
     """
 
-    def __init__(self, voice: str = 'bm_daniel') -> None:
+    def __init__(self, model_path: str, voices_path: str, voice: str = 'bm_daniel') -> None:
         """
         Initializes the TTS engine with the specified voice profile.
 
@@ -16,7 +16,7 @@ class TextToSpeech:
             voice (str): The identifier for the desired voice.
         """
         # Load the ONNX model and the corresponding voice binary
-        self.tts = Kokoro("kokoro-v1.0.onnx", "voices-v1.0.bin")
+        self.tts = Kokoro(model_path, voices_path)
         self.voice = voice
 
     def speak(self, text: str) -> bool:
@@ -29,6 +29,10 @@ class TextToSpeech:
         Returns:
             bool: True if the audio played successfully.
         """
+        # Handle empty string
+        if not text or text.strip() == '':
+            return True
+        
         # Create the audio data from the text
         audio, sample_rate = self.tts.create(text, self.voice, 1.0)
         
@@ -39,5 +43,5 @@ class TextToSpeech:
         return True
 
 if __name__ == '__main__':
-    tts = TextToSpeech()
+    tts = TextToSpeech('kokoro-v1.0.onnx', 'voices-v1.0.bin')
     tts.speak("Hello, this is a test of the Kokoro module Text to Speech system. Seems like it's working perfectly fine, isn't it? Nice!")
