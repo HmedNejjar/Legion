@@ -1,0 +1,20 @@
+classifier:
+  confidence_threshold: 0.8  # Below this → LLM fallback
+  model_name: "intent_classifier"
+
+learning:
+  confirmations_for_default: 5  # N confirmations before auto-execute
+  max_tie_options: 2  # Max choices when resolving action
+
+execution:
+  retry_attempts: 3
+  retry_backoff: 1.5  # seconds
+  timeout_seconds: 5
+
+session:
+  context_window_size: 20
+  idle_timeout_seconds: 300
+
+vad:
+  silence_duration: 2.0  # seconds before opening mic
+  energy_threshold: 0.3
