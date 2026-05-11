@@ -1,6 +1,7 @@
 classifier:
   confidence_threshold: 0.8  # Below this → LLM fallback
   model_name: "intent_classifier"
+  llm_model: 'qwen3:1.7b'
 
 learning:
   confirmations_for_default: 5  # N confirmations before auto-execute
@@ -14,6 +15,8 @@ execution:
 session:
   context_window_size: 20
   idle_timeout_seconds: 300
+  input_mode: "hybrid"  # "text", "voice", or "hybrid"
+  enable_mic: true    # Disable mic if false
 
 vad:
   silence_duration: 2.0  # seconds before opening mic

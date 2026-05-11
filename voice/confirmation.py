@@ -3,20 +3,24 @@ sys.path.insert(1, r'G:\Projects\Python\Legion')
 
 from voice.tts import TextToSpeech
 from input.voice import VoiceInput
+from input.text import TextInput
 
 class ConfirmationHandler:
     """
     Asks the user for verbal confirmation (yes/no) before proceeding with an action.
     """
-    def __init__(self, model_path: str, voices_path: str) -> None:
+    def __init__(self, model_path: str, voices_path: str, input_mode: str = 'text') -> None:
         self.tts = TextToSpeech(model_path, voices_path)
         self.voice = VoiceInput()
+        self.text = TextInput()
+        
+        self.input_mode = input_mode
         
     def ask_confirmation(self, narration: str, timeout: int = 5) -> bool:
         """Speaks the action narration and listens for a yes/no response."""
         self.tts.speak(narration)
         
-        response_text = self.voice.listen(timeout)
+        response_text = self.voice.listen(timeout) if self.input_mode == 'voice' else self.text.listen(timeout)
         
         if response_text is None:
             self.tts.speak('I did not hear a response, Aborting Operation')
