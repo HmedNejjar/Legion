@@ -15,10 +15,15 @@ class ConfirmationHandler:
         self.text = TextInput()
         
         self.input_mode = input_mode
-        
+
+    def read(self, text: str) -> None:
+        """Prints text to console and speaks it via TTS."""
+        print(f"Legion: {text}")
+        self.tts.speak(text)
+    
     def ask_confirmation(self, narration: str, timeout: int = 5) -> bool:
         """Speaks the action narration and listens for a yes/no response."""
-        self.tts.speak(narration)
+        self.tts.read(narration)
         
         response_text = self.voice.listen(timeout) if self.input_mode == 'voice' else self.text.listen(timeout)
         

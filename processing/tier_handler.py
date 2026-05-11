@@ -16,8 +16,8 @@ class TierHandler:
             return self.confirmer.ask_confirmation(confirmation)
         elif tier == 2:
             if learned_default:
-                return self.confirmer.ask_confirmation(confirmation)
-            return False
+                return True
+            else: return self.confirmer.ask_confirmation(confirmation)
         elif tier == 3: 
             self.confirmer.tts.speak(confirmation); return True
         return False

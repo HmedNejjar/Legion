@@ -41,6 +41,11 @@ class TextToSpeech:
         sd.wait()
         
         return True
+    
+    def read(self, text: str) -> None:
+        """Prints text to console and speaks it via TTS."""
+        print(f"Legion: {text}")
+        self.speak(text)
 
 if __name__ == '__main__':
     tts = TextToSpeech('kokoro-v1.0.onnx', 'voices-v1.0.bin')
