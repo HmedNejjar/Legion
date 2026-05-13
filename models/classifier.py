@@ -11,9 +11,9 @@ class IntentClassifier:
     This class utilizes a TF-IDF vectorizer for feature extraction and a 
     Multinomial Naive Bayes classifier for prediction, providing a lightweight 
     and efficient way to categorize user commands.
-    """
+    """  
 
-    def __init__(self, model_path: str | Path) -> None:
+    def __init__(self, model_path: str | Path, training_path: str | Path) -> None:
         """
         Initializes the classifier and attempts to load an existing model from disk.
 
@@ -22,6 +22,9 @@ class IntentClassifier:
                                      the trained model and vectorizer.
         """
         self.model_path = Path(model_path)
+        self.training_path = Path(self.training_path)
+        self.training_data = self.load_data()
+        self.retrain_threshold = 5
         
         # Initialize the TF-IDF vectorizer to convert text to numerical features
         self.vectorizer = TfidfVectorizer(lowercase=True, stop_words='english')
@@ -33,19 +36,24 @@ class IntentClassifier:
         # Load the model if a pre-trained file already exists
         if Path.exists(self.model_path):
             self.load()
+                
+    def load_data(self) -> dict:
+        with open(self.training_path, 'r') as f:
+            return json.load(f)
         
-    def train(self, training_data: dict) -> None:
+    def save_training_data(self) -> None:
+        with open(self.training_path, 'w') as f:
+            json.dump(self.training_data, f, indent=3)
+        
+    def train(self) -> None:
         """
         Trains the classifier on a provided dictionary of intents and examples.
 
-        Args:
-            training_data (dict): A dictionary where keys are intent IDs (str) 
-                                  and values are lists of example phrases (list[str]).
         """
         text, labels = [], []
         
         # Unpack the training dictionary into parallel lists of text and labels
-        for intent_id, examples in training_data.items():
+        for intent_id, examples in (self.training_data if self.training_data else {}).items():
             for example in examples:
                 text.append(example)
                 labels.append(intent_id)
@@ -108,17 +116,30 @@ class IntentClassifier:
             self.vectorizer = data['vectorizer']
             self.classifier = data['classifier']
             self.trained = True
-            
-if __name__ == '__main__':
-    # Load training data
-    with open(r'G:\\Projects\\Python\\Legion\\memory\\classifier_training_data.json', 'r') as f:
-        training_data = json.load(f)
     
-    print(f"Training on {sum(len(v) for v in training_data.values())} examples across {len(training_data)} intents...")
+    def add_to_training_sample(self, text: str, intent_id: str) -> None:
+        """Adds sample and retrains if threshold reached."""
+        if intent_id not in self.training_data:
+            self.training_data[intent_id] = []
+
+        self.training_data[intent_id].append(text)
+        self.save_training_data()
+
+        if len(self.training_data[intent_id]) % self.retrain_threshold == 0:
+            self.retrain()
+
+    def retrain(self) -> None:
+        """Retrains classifier."""
+        self.train()
+        print("✓ Classifier retrained")
+        
+if __name__ == '__main__':
+    MODEL_PATH = Path(r'G:\Projects\Python\Legion\models\classifier.pkl')
+    TRAINING_DATA_PATH = Path(r'G:\Projects\Python\Legion\config\training_data.json')
     
     # Train
-    classifier = IntentClassifier(r'G:\\Projects\\Python\\Legion\\models\\classifier.pkl')
-    classifier.train(training_data)
+    classifier = IntentClassifier(MODEL_PATH, TRAINING_DATA_PATH)
+    classifier.train()
     print("✓ Classifier trained and saved")
     
     # Test
