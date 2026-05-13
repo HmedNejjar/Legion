@@ -10,14 +10,13 @@ class TierHandler:
         
     def handle(self, tool: dict, tier: int, learned_default: bool) -> bool:
         """Processes confirmation logic based on the tool's tier."""
-        self.confirmer.input_mode = self.input_mode
-        confirmation = f"{tool['narration']}, should i proceed sir" 
+        narration = tool['narration']
         if tier == 1: 
-            return self.confirmer.ask_confirmation(confirmation)
+            return self.confirmer.ask_confirmation(narration)
         elif tier == 2:
             if learned_default:
                 return True
-            else: return self.confirmer.ask_confirmation(confirmation)
+            else: return self.confirmer.ask_confirmation(narration)
         elif tier == 3: 
-            self.confirmer.tts.speak(confirmation); return True
+            self.confirmer.tts.speak(narration); return True
         return False
