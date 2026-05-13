@@ -2,59 +2,35 @@
   "intents": [
     {
       "id": "app_launch",
-      "description": "Open an application",
-      "examples": ["open YouTube Music", "launch chrome", "start vscode"],
-      "tier": 3,
-      "category": "app_control"
+      "description": "Open an application"
     },
     {
       "id": "music_play",
-      "description": "Start playing music from a source",
-      "examples": ["play music", "start youtube music", "play local files"],
-      "tier": 2,
-      "category": "music"
+      "description": "Start playing music from a source"
     },
     {
       "id": "music_queue",
-      "description": "Add songs to queue",
-      "examples": ["queue this", "add to queue", "play this next"],
-      "tier": 2,
-      "category": "music"
+      "description": "Add songs to queue"
     },
     {
       "id": "music_control",
-      "description": "Control playback: skip, pause, volume",
-      "examples": ["skip", "pause", "next track"],
-      "tier": 2,
-      "category": "music"
+      "description": "Control playback: skip, pause, volume"
     },
     {
       "id": "file_move",
-      "description": "Move files to different location",
-      "examples": ["move file to downloads", "organize files"],
-      "tier": 1,
-      "category": "file"
+      "description": "Move files to different location"
     },
     {
       "id": "file_delete",
-      "description": "Delete files permanently",
-      "examples": ["delete this file", "remove temp files"],
-      "tier": 1,
-      "category": "file"
+      "description": "Delete files permanently"
     },
     {
       "id": "web_navigate",
-      "description": "Open URL or navigate web",
-      "examples": ["go to google", "open youtube", "search for weather", "check github"],
-      "tier": 3,
-      "category": "web"
+      "description": "Open URL or navigate web"
     },
     {
       "id": "web_interact",
-      "description": "Click, scroll, fill forms on current page",
-      "examples": ["click the button", "scroll down", "submit form"],
-      "tier": 1,
-      "category": "web"
+      "description": "Click, scroll, fill forms on current page"
     }
   ]
 }

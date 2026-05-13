@@ -2,19 +2,19 @@
   "tools": [
     {
       "id": "launch_app",
-      "name": "launch_app",
+      "intent_id": "app_launch",
       "tier": 3,
-      "category": "app_control",
       "narration": "Opening {app_name}.",
       "outcome": "{app_name} will launch.",
-      "parameters": {"app_name": "string"},
+      "parameters": {
+        "app_name": "string"
+      },
       "suggestions_enabled": false
     },
     {
       "id": "play_music_youtube",
-      "name": "play_music_youtube",
+      "intent_id": "music_play",
       "tier": 2,
-      "category": "music",
       "narration": "Opening YouTube Music.",
       "outcome": "YouTube Music will play.",
       "parameters": {},
@@ -22,9 +22,8 @@
     },
     {
       "id": "play_local_music",
-      "name": "play_local_music",
+      "intent_id": "music_play",
       "tier": 2,
-      "category": "music",
       "narration": "Opening local playlists.",
       "outcome": "Local playlists will play.",
       "parameters": {},
@@ -32,19 +31,19 @@
     },
     {
       "id": "music_queue",
-      "name": "music_queue",
+      "intent_id": "music_queue",
       "tier": 2,
-      "category": "music",
       "narration": "Queueing {song_name}.",
       "outcome": "{song_name} will play after the current track.",
-      "parameters": {"song_name": "string"},
+      "parameters": {
+        "song_name": "string"
+      },
       "suggestions_enabled": true
     },
     {
       "id": "music_pause",
-      "name": "music_pause",
+      "intent_id": "music_control",
       "tier": 2,
-      "category": "music",
       "narration": "Pausing playback.",
       "outcome": "Music paused.",
       "parameters": {},
@@ -52,9 +51,8 @@
     },
     {
       "id": "music_play",
-      "name": "music_play",
+      "intent_id": "music_control",
       "tier": 2,
-      "category": "music",
       "narration": "Resuming playback.",
       "outcome": "Music playing.",
       "parameters": {},
@@ -62,9 +60,8 @@
     },
     {
       "id": "music_skip",
-      "name": "music_skip",
+      "intent_id": "music_control",
       "tier": 2,
-      "category": "music",
       "narration": "Skipping to next track.",
       "outcome": "Skipped to next track.",
       "parameters": {},
@@ -72,9 +69,8 @@
     },
     {
       "id": "music_previous",
-      "name": "music_previous",
+      "intent_id": "music_control",
       "tier": 2,
-      "category": "music",
       "narration": "Playing previous track.",
       "outcome": "Now playing previous track.",
       "parameters": {},
@@ -82,9 +78,8 @@
     },
     {
       "id": "music_volume_up",
-      "name": "music_volume_up",
+      "intent_id": "music_control",
       "tier": 2,
-      "category": "music",
       "narration": "Turning volume up.",
       "outcome": "Volume increased.",
       "parameters": {},
@@ -92,9 +87,8 @@
     },
     {
       "id": "music_volume_down",
-      "name": "music_volume_down",
+      "intent_id": "music_control",
       "tier": 2,
-      "category": "music",
       "narration": "Turning volume down.",
       "outcome": "Volume decreased.",
       "parameters": {},
@@ -102,49 +96,53 @@
     },
     {
       "id": "file_move",
-      "name": "file_move",
+      "intent_id": "file_move",
       "tier": 1,
-      "category": "file_management",
       "narration": "Moving {file_name} to {destination}.",
       "outcome": "{file_name} moved to {destination}.",
-      "parameters": {"file_name": "string", "destination": "string"},
+      "parameters": {
+        "file_name": "string",
+        "destination": "string"
+      },
       "suggestions_enabled": false
     },
     {
       "id": "file_delete",
-      "name": "file_delete",
+      "intent_id": "file_delete",
       "tier": 1,
-      "category": "file_management",
       "narration": "Deleting {file_name}.",
       "outcome": "{file_name} permanently deleted.",
-      "parameters": {"file_name": "string"},
+      "parameters": {
+        "file_name": "string"
+      },
       "suggestions_enabled": false
     },
     {
       "id": "web_open_url",
-      "name": "web_open_url",
+      "intent_id": "web_navigate",
       "tier": 3,
-      "category": "web_navigation",
       "narration": "Opening {url}.",
       "outcome": "{url} opened in browser.",
-      "parameters": {"url": "string"},
+      "parameters": {
+        "url": "string"
+      },
       "suggestions_enabled": true
     },
     {
       "id": "web_search",
-      "name": "web_search",
+      "intent_id": "web_navigate",
       "tier": 3,
-      "category": "web_navigation",
       "narration": "Searching for {query}.",
       "outcome": "Search results displayed.",
-      "parameters": {"query": "string"},
+      "parameters": {
+        "query": "string"
+      },
       "suggestions_enabled": true
     },
     {
       "id": "web_read_page",
-      "name": "web_read_page",
+      "intent_id": "web_navigate",
       "tier": 3,
-      "category": "web_navigation",
       "narration": "Reading page content.",
       "outcome": "Page content described.",
       "parameters": {},
@@ -152,9 +150,8 @@
     },
     {
       "id": "web_scroll_down",
-      "name": "web_scroll_down",
+      "intent_id": "web_interact",
       "tier": 3,
-      "category": "web_interact",
       "narration": "Scrolling down.",
       "outcome": "Page scrolled down.",
       "parameters": {},
@@ -162,9 +159,8 @@
     },
     {
       "id": "web_scroll_up",
-      "name": "web_scroll_up",
+      "intent_id": "web_interact",
       "tier": 3,
-      "category": "web_interact",
       "narration": "Scrolling up.",
       "outcome": "Page scrolled up.",
       "parameters": {},
@@ -172,22 +168,24 @@
     },
     {
       "id": "web_click",
-      "name": "web_click",
+      "intent_id": "web_interact",
       "tier": 1,
-      "category": "web_interact",
       "narration": "Clicking on {element}.",
       "outcome": "{element} clicked.",
-      "parameters": {"element": "string"},
+      "parameters": {
+        "element": "string"
+      },
       "suggestions_enabled": false
     },
     {
       "id": "web_fill_form",
-      "name": "web_fill_form",
+      "intent_id": "web_interact",
       "tier": 1,
-      "category": "web_interact",
       "narration": "Filling form with {content}.",
       "outcome": "Form filled and ready to submit.",
-      "parameters": {"content": "string"},
+      "parameters": {
+        "content": "string"
+      },
       "suggestions_enabled": false
     }
   ]
