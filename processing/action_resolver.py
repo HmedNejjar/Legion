@@ -54,29 +54,16 @@ class ActionResolver:
             tuple: (None, matching_tools) if multiple options exist.
             tuple: (None, []) if no matching tools are found.
         """
-        # First, check if the user has a preferred 'dominant' action for this intent
-        dominant_intent_id = self.history.get_dominant_action(intent_id)
+        # First, check if the user has a preferred 'dominant' tool['intent_id'] for this intent
+        dominant_tool_intent_id = self.history.get_dominant_action(intent_id)
         
-        if dominant_intent_id and dominant_intent_id in self.tools:
-            return self.tools[dominant_intent_id], None
-        
-        # Fallback: Load intent definitions to find the category
-        with open(INTENTS_PATH, 'r') as f:
-            intents = json.load(f)
-        
-        category = None
-        for intent in intents['intents']:
-            if intent['id'] == intent_id:
-                category = intent['category']
-                break
-        
-        if not category:
-            return None, []
+        if dominant_tool_intent_id and dominant_tool_intent_id in self.tools:
+            return self.tools[dominant_tool_intent_id], None
             
-        # Return all tools that match the intent's category
+        # Return all tools that match the intent's id
         matching_tools = [
             tool for tool in self.tools.values() 
-            if tool['category'] == category
+            if tool['intent_id'] == intent_id
         ]
         
         return None, matching_tools
