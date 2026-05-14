@@ -1,6 +1,6 @@
 from .voice import VoiceInput
 from .text import TextInput
-from .camera import CameraImput
+from .camera import CameraInput
 
 class InputRouter:
     """
@@ -10,7 +10,7 @@ class InputRouter:
         self.primary_mode = primary_mode
         self.voice = VoiceInput()
         self.text = TextInput()
-        self.camera = CameraImput()
+        self.camera = CameraInput()
         
     def get_input(self) -> str | None:
         if self.primary_mode == 'voice': return self.voice.listen()
