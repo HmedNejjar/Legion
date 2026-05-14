@@ -22,7 +22,7 @@ class IntentClassifier:
                                      the trained model and vectorizer.
         """
         self.model_path = Path(model_path)
-        self.training_path = Path(self.training_path)
+        self.training_path = Path(training_path)
         self.training_data = self.load_data()
         self.retrain_threshold = 5
         
