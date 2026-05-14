@@ -8,12 +8,13 @@ class CameraImput:
     Captures frames from the webcam and describes them using a vision model.
     """
 
-    def __init__(self, model: str = 'moondream:latest', camera: int = 0) -> None:
+    def __init__(self,  user_input: str, model: str = 'moondream:latest', camera: int = 0) -> None:
         """
         Initializes the camera and sets the target vision model.
         """
         self.model = model
         self.cap = cv2.VideoCapture(camera)
+        self.user_input = user_input
         
     def capture_describe(self) -> str | None:
         """
@@ -43,7 +44,7 @@ class CameraImput:
             # Stream the description from the local vision model
             for chunk in ollama.generate(
                 self.model, 
-                prompt="What do you see in this image? Describe it briefly.", 
+                prompt=f"What do you see in this image?, {self.user_input} ", 
                 images=[image_base64], 
                 stream=True
             ):
@@ -61,7 +62,7 @@ class CameraImput:
         self.cap.release()
         
 if __name__ == '__main__':
-    camera = CameraImput()
+    camera = CameraImput(user_input="what time is displayed on the phone clock")
     desc = camera.capture_describe()
     print(f"Camera sees: {desc}")
     camera.close()
