@@ -135,7 +135,7 @@ class IntentClassifier:
         
 if __name__ == '__main__':
     MODEL_PATH = Path(r'G:\Projects\Python\Legion\models\classifier.pkl')
-    TRAINING_DATA_PATH = Path(r'G:\Projects\Python\Legion\config\training_data.json')
+    TRAINING_DATA_PATH = Path(r'G:\Projects\Python\Legion\memory\classifier_training_data.json')
     
     # Train
     classifier = IntentClassifier(MODEL_PATH, TRAINING_DATA_PATH)
@@ -152,6 +152,8 @@ if __name__ == '__main__':
         "go to youtube",
         "skip to next",
         "move file to drive D:",
+        "check my camera",
+        "what am i holding in my hand",
         "click the button"
     ]
     
