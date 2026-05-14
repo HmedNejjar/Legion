@@ -16,5 +16,5 @@ class InputRouter:
         if self.primary_mode == 'voice': return self.voice.listen()
         return self.text.listen()
     
-    def get_camera_input(self) -> str | None:
-        return self.camera.capture_describe()
+    def get_camera_input(self, user_input: str) -> str | None:
+        return self.camera.capture_describe(user_input)

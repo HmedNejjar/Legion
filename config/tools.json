@@ -12,6 +12,15 @@
       "suggestions_enabled": false
     },
     {
+      "id": "open_camera",
+      "intent_id": "check_camera",
+      "tier": 3,
+      "narration": "Capturing and analyzing camera feed.",
+      "outcome": "Camera feed analyzed and described.",
+      "parameters": {},
+      "suggestions_enabled": false
+    },
+    {
       "id": "play_music_youtube",
       "intent_id": "music_play",
       "tier": 2,

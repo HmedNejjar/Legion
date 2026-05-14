@@ -5,6 +5,10 @@
       "description": "Open an application"
     },
     {
+      "id": "check_camera",
+      "description": "Capture and analyze camera feed based on user context"
+    },
+    {
       "id": "music_play",
       "description": "Start playing music from a source"
     },
