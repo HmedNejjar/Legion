@@ -1,0 +1,18 @@
+{
+  "hybrid_pairs": {
+    "app_launch": true,
+    "check_camera": true,
+    "music_play": true,
+    "music_queue": true,
+    "music_control": true,
+    "file_move": false,
+    "file_delete": false,
+    "web_navigate": true,
+    "web_interact": true
+  },
+  "chat_response_config": {
+    "include_action_context": true,
+    "narrate_action_first": true,
+    "response_delay_ms": 500
+  }
+}

@@ -22,7 +22,8 @@
       "launch zoom",
       "open telegram",
       "start whatsapp",
-      "launch skype"
+      "launch skype",
+      "Open camera and send me what do you see on my hand"
    ],
    "check_camera": [
       "look at my screen",
@@ -45,7 +46,15 @@
       "what's visible",
       "analyze this image",
       "camera feed",
-      "Open camera and check what time it is."
+      "Open camera and check what time it is.",
+      "Open camera and check what you see, tell me what you see, describe briefly.",
+      "Camera and channel what do you see? It's quite briefly.",
+      "Camera and tell me what you see. Explain briefly.",
+      "Use camera to see what I have on my hand.",
+      "Check camera and tell me what do you see on my hand",
+      "Use camera to see what I have on my hand.",
+      "Use the camera to see what you have in my hand. Describe briefly.",
+      "Use camera to describe what I have in my hand"
    ],
    "music_play": [
       "play music",
@@ -157,8 +166,7 @@
       "visit facebook",
       "go to reddit",
       "open wikipedia",
-      "search google",
-      "cancers early on."
+      "search google"
    ],
    "web_interact": [
       "click the button",
@@ -182,5 +190,33 @@
       "fill text field",
       "click login",
       "scroll down page"
-   ]
+   ],
+   "hybrid": [
+    "play music and tell me what's playing",
+    "open spotify and suggest something chill",
+    "start playing and recommend a song",
+    "play something and tell me the artist",
+    "skip this and tell me what's next",
+    "pause and explain this song",
+    "volume up and remind me to turn it down later",
+    "open youtube and find me something funny",
+    "launch discord and tell me who's online",
+    "open chrome and search for ai news",
+    "open vscode and explain what this file does",
+    "launch youtube and queue my favorite playlist",
+    "play music and tell me what genre this is",
+    "start youtube music and suggest a new artist",
+    "open slack and tell me if i have messages",
+    "launch teams and remind me about the meeting",
+    "open github and tell me what i was working on",
+    "check the camera and describe what you see",
+    "open my editor and help me with this code",
+    "launch notepad and give me a writing prompt",
+    "open excel and explain this formula",
+    "Open Brave and tell me what's the weather like",
+    "start the presentation and walk me through it",
+    "open the pdf and summarize the first page",
+    "launch the browser and check the weather",
+    "open the app and tell me about the latest update"
+  ]
 }

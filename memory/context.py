@@ -1,5 +1,7 @@
+import json
+from datetime import datetime
 from collections import deque
-
+from pathlib import Path
 class ContextWindow:
     """
     Manages a sliding window of conversation history for LLM interactions.
@@ -8,81 +10,274 @@ class ContextWindow:
     retained, preventing context window overflow and managing memory efficiency.
     """
 
-    def __init__(self, max_size: int = 20) -> None:
+    def __init__(self, history_filepath: str | Path, context_size: int = 20) -> None:
         """
         Initializes the context window with a fixed maximum size.
 
         Args:
-            max_size (int): The maximum number of conversation turns to store. 
-                            Defaults to 20.
-        """
-        self.max_size = max_size
-        # Deque automatically removes the oldest items when maxlen is reached
-        self.history = deque(maxlen=max_size)
+             history_filepath (str | Path): Path to history.json file.
+                                          Created if doesn't exist.
+             context_size (int): The maximum number of recent exchanges to retain in memory.
+        """        
+        self.history_path = Path(history_filepath)
+        self.persistent_history = self._load()
+        
+        self.context_size = context_size
     
-    def add(self, role: str, content: str) -> None:
+    def _load(self) -> list:
         """
-        Adds a new turn (user or assistant) to the conversation history.
-
-        Args:
-            role (str): The role of the speaker (e.g., 'user', 'assistant', 'system').
-            content (str): The text content of the message.
-        """
-        self.history.append({"role": role, "content": content})
-    
-    def get_all(self) -> list[dict]:
-        """
-        Retrieves the entire stored conversation history.
+        Loads any existing conversation history from the .json file.
 
         Returns:
-            list[dict]: A list of message dictionaries.
+            list: A list of message dictionaries loaded from the file, or an empty list if none exist.
         """
-        return list(self.history)
+        if self.history_path.exists():
+            try:
+                with open(self.history_path, 'r') as f:
+                    return json.load(f)
+                
+            except (json.JSONDecodeError, IOError) as e:
+                print(f"Warning: Could not load history: {e}. Starting fresh.")
+                return []
+        return []
     
-    def get_last_n(self, n: int) -> list[dict]:
+    def _save(self) -> None:
         """
-        Retrieves the most recent 'n' messages from the history.
+        Persists the entire history to JSON file immediately.
+        Called after every exchange.
+        """
+        self.history_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(self.history_path, 'w') as f:
+            json.dump(self.persistent_history, f, indent=3)
+    
+
+    def save_exchange(self, exchange_type: str, **kwargs) -> None:
+        """
+        Unified save method that routes to appropriate handler.
+
+        exchange_type: 'action', 'chat', or 'hybrid'
+        **kwargs: Depends on type future-proof
+        """
+        if exchange_type == "action":
+            self._save_action(**kwargs)
+        elif exchange_type == "chat":
+            self._save_chat(**kwargs)
+        elif exchange_type == "hybrid":
+            self._save_hybrid(**kwargs)
+            
+        # ===== INTERNAL HANDLERS =====
+            
+    def _save_action(self, user_input: str, intent: str, action_intent: str, action_tool: str, action_result: str, assistant_narration: str) -> None:
+        """
+        Records an ACTION exchange to persistent history.
+        
+        Called internally via save_exchange('action', ...).
+ 
+        Args:
+            user_input (str): What the user said
+            detected_intent (str): Classifier output (e.g., 'music_play', 'app_launch')
+            action_intent (str): The action category (same as detected_intent for pure actions)
+            action_tool (str): Specific tool executed (e.g., 'play_music_spotify')
+            action_result (str): Outcome of the action (e.g., 'Spotify opened')
+            assistant_narration (str): What Legion said about the action
+        """
+        if not self.history_path:
+            return
+        
+        entry = {
+            "timestamp": datetime.now().isoformat(),
+            "user": user_input,
+            "detected_intent": intent,
+            "action_intent": action_intent,
+            "action_tool": action_tool,
+            "action_result": action_result,
+            "assistant": assistant_narration,
+            "type": "action"
+        }
+        self.persistent_history.append(entry)
+        self._save()
+        
+    def _save_chat(self, user_input: str, assistant_response: str) -> None:
+        """
+        Records a CHAT exchange to persistent history.
+        
+        Called internally via save_exchange('chat', ...).
+ 
+        Args:
+            user_input (str): What the user asked
+            assistant_response (str): Legion's conversational response
+        """
+        if not self.history_path:
+            return
+        
+        entry = {
+            "timestamp": datetime.now().isoformat(),
+            "user": user_input,
+            "detected_intent": "chat",
+            "assistant": assistant_response,
+            "type": "chat"
+        }
+        self.persistent_history.append(entry)
+        self._save()
+        
+    def _save_hybrid(self, user_input: str, intent: str, action_intent: str, action_tool: str, action_result: str, action_narration: str, assistant_response: str) -> None:
+        """
+        Records a HYBRID exchange (action + chat) to persistent history.
+        
+        Called internally via save_exchange('hybrid', ...).
+ 
+        Args:
+            user_input (str): What the user asked
+            detected_intent (str): Classifier output (e.g., 'music_play', 'app_launch')
+            action_intent (str): The action category (same as detected_intent for pure actions)
+            action_tool (str): Specific tool executed (e.g., 'play_music_spotify')
+            action_result (str): Outcome of the action (e.g., 'Spotify opened')
+            action_narration (str): What Legion said about the action
+            assistant_response (str): Legion's conversational response to the user
+        """
+        if not self.history_path:
+            return
+        
+        entry = {
+            "timestamp": datetime.now().isoformat(),
+            "user": user_input,
+            "detected_intent": intent,
+            "type": "hybrid",
+            "action": {
+                "action_intent": action_intent,
+                "action_tool": action_tool,
+                "action_result": action_result,
+                "narration": action_narration
+            },
+            "chat": {
+                "response": assistant_response
+            }
+        }
+        self.persistent_history.append(entry)
+        self._save()
+        
+    # ===== QUERY METHODS =====
+    def get_last_n(self, n: int) -> list:
+        """
+        Retrieves the last 'n' exchanges from history.
 
         Args:
-            n (int): The number of recent messages to retrieve.
+            n (int): Number of recent exchanges to retrieve.
 
         Returns:
-            list[dict]: A list containing the last n messages.
+            list: A list of the last 'n' exchange dictionaries.
         """
-        return list(self.history)[-n:]
+        return self.persistent_history[-n:] if len(self.persistent_history) > 0 else []
+    
+    def get_all(self) -> list:
+        """
+        Retrieves the entire conversation history.
+
+        Returns:
+            list: A list of all exchange dictionaries in history.
+        """
+        return self.persistent_history
+    
+    def get_by_type(self, entry_type: str) -> list:
+        """
+        Retrieves all exchanges of a specific type (e.g., 'action', 'chat', 'hybrid').
+
+        Args:
+            entry_type (str): The type of exchanges to filter by.
+
+        Returns:
+            list: A list of exchange dictionaries matching the specified type.
+        """
+        return [entry for entry in self.persistent_history if entry.get('type') == entry_type]
+    
+    def get_by_intent(self, intent: str) -> list:
+        """
+        Retrieves all exchanges associated with a specific detected intent.
+
+        Args:
+            intent (str): The detected intent to filter by.
+
+        Returns:
+            list: A list of exchange dictionaries where 'detected_intent' matches the specified intent.
+        """
+        return [entry for entry in self.persistent_history if entry.get('detected_intent') == intent]
+    
+    # ===== FORMATTING FOR LLM =====
+    
+    def format_for_prompt(self) -> str:
+        recent = self.get_last_n(self.context_size)
+        lines = []
+        
+        for entry in recent:
+            timestamp = entry.get('timestamp', 'unknown time')
+            user_input = entry.get('user', '')
+            detected_intent = entry.get('detected_intent', 'unknown intent')
+            entry_type = entry.get('type', '')
+            
+            lines.append(f"[{timestamp}] USER ({detected_intent}): {user_input}")
+            
+            if entry_type == 'action' or 'chat':
+                assistant = entry.get('assistant', '')
+                lines.append(f"Assistant ({entry_type}): {assistant}")
+            
+            else:
+                action, chat = entry.get('action', {}), entry.get('chat', {})
+                action_narration, action_result = action.get('narration', ''), action.get('action_result', '')
+                lines.append(f"ASSISTANT (action): {action_narration} → {action_result}")
+                
+                chat_response = chat.get('response', '')
+                lines.append(f"ASSISTANT (chat): {chat_response}")
+                
+            lines.append("")
+        return "\n".join(lines)
+    
+    # ==== UTILITY METHODS =====
+    @property
+    def count_exchanges(self) -> int:
+        """
+        Utility method to count total exchanges in history.
+        """
+        return len(self.persistent_history)
     
     def clear(self) -> None:
         """
-        Wipes all messages from the current conversation history.
+        Clears the entire conversation history from memory and file.
         """
-        self.history.clear()
+        self.persistent_history = []
+        self._save()
         
-    def format_for_prompt(self) -> str:
-        """
-        Formats the conversation history into a single string for LLM consumption.
         
-        Example format:
-        USER: hello
-        ASSISTANT: hi there
-
-        Returns:
-            str: A newline-separated string of formatted dialogue turns.
-        """
-        lines = []
-        for turn in self.history:
-            # Uppercase the role for consistent prompt engineering style
-            role, content = turn['role'].upper(), turn['content']
-            lines.append(f'{role}: {content}')
-        
-        return '\n'.join(lines)
-    
 if __name__ == "__main__":
-    ctx = ContextWindow(max_size=5)
-    ctx.add("user", "play music")
-    ctx.add("assistant", "playing spotify")
-    ctx.add("user", "skip this")
-    ctx.add("assistant", "skipped")
+    HISTORY_FILE = r'G:\Projects\Python\Legion\memory\history.json'
     
-    print(ctx.get_all())
-    print("\nFormatted:")
-    print(ctx.format_for_prompt())
+    ctx = ContextWindow(HISTORY_FILE)
+    
+    ctx.save_exchange('action',
+        user_input="play music",
+        intent="music_play",
+        action_intent="music_play",
+        action_tool="play_music_spotify",
+        action_result="Spotify opened",
+        assistant_narration="Opening Spotify."); print("✓ Saved ACTION exchange")
+    
+    ctx.save_exchange('chat',
+        user_input="tell me a joke",
+        assistant_response="Why did the AI go to school? To improve its training data!"); print("✓ Saved CHAT exchange")
+    
+    ctx.save_exchange('hybrid',
+        user_input="play music and tell me what's playing",
+        intent="hybrid",
+        action_intent="music_play",
+        action_tool="play_music_youtube",
+        action_result="YouTube Music opened",
+        action_narration="Opening YouTube Music.",
+        assistant_response="I've opened YouTube Music for you! Currently playing Show by Ado"); print("✓ Saved HYBRID exchange")
+
+    print(f'\ntotal entries: {ctx.count_exchanges}') # Expected: 5
+    
+    print(f"\nAll ACTION entries: {len(ctx.get_by_type('action'))}") #Expected: 2
+    print(f"All CHAT entries: {len(ctx.get_by_type('chat'))}") #Expected: 1
+    print(f"All HYBRID entries: {len(ctx.get_by_type('hybrid'))}") #Expected: 1
+    
+    print(f"All music_play intent entries: {len(ctx.get_by_intent('music_play'))}") #Expected: 2

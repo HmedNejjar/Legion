@@ -35,6 +35,10 @@
     {
       "id": "web_interact",
       "description": "Click, scroll, fill forms on current page"
+    },
+    {
+      "id": "chat",
+      "description": "Conversational query - no tool execution, just respond naturally"
     }
   ]
 }
