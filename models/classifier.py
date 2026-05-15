@@ -150,6 +150,8 @@ if __name__ == '__main__':
         "delete this file",
         "scroll down",
         "go to youtube",
+        'Open web and describe how weather in Chengdu is like',
+        'Why is Claude code famous nowadays',
         "skip to next",
         "move file to drive D:",
         "check my camera",
