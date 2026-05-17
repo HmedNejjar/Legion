@@ -232,6 +232,42 @@ class ContextWindow:
             lines.append("")
         return "\n".join(lines)
     
+    def extract_conversation_threads(self, recent_exchanges: list, user_input: str) -> str:
+        """
+        Extracts a concise conversation thread relevant to the current user input.
+        ensuring that only the most pertinent historical exchanges are included, thus optimizing context window usage.
+
+        Args:
+            recent_exchanges (str): The formatted recent exchanges from format_for_prompt().
+            user_input (str): The current user input for which we want to extract relevant history.
+        Returns:
+            str: concise conversation thread containing last important exchanges
+        """
+        lines =  []
+        
+        # Check if we just did an action
+        for exchange in reversed(recent_exchanges):
+            if exchange.get('type') in ('action', 'hybrid'):
+                tool = exchange.get('action_tool', '')
+                outcome = exchange.get('action_result', '')
+                lines.append(f'Recently executed: {tool} → {outcome}')
+                break
+            
+        # Check if there was a recent chat response to continue from
+        chat_exchanges = [exch for exch in recent_exchanges if exch.get('type') == 'chat']
+        
+        if chat_exchanges:
+            last_chat = chat_exchanges[-1]
+            last_response = last_chat.get('assistant', '')
+            lines.append(f"Last response what about: {last_response}")
+            
+        # Detect pronouns in current input for follow-ups
+        pronouns = ('it', 'that', 'this', 'those', 'them', 'they', 'these')
+        if any(word in user_input.lower() for word in pronouns):
+            lines.append("User input is likely referring to recent context.")
+        
+        return "\n".join(lines) if lines else ''
+            
     # ==== UTILITY METHODS =====
     @property
     def count_exchanges(self) -> int:
