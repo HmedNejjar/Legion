@@ -44,7 +44,7 @@ class TextToSpeech:
     
     def read(self, text: str) -> None:
         """Prints text to console and speaks it via TTS."""
-        print(f"Legion: {text}")
+        print(f"\nLegion: {text}")
         self.speak(text)
 
 if __name__ == '__main__':
