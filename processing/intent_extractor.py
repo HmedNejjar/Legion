@@ -44,6 +44,28 @@ class IntentExtractor:
             print(f"Error in LLM fallback: {e}")
             return None
         
+    def extract_action_intent_hybrid(self, user_input: str) -> str | None:
+        """
+        Extracts the action intent from a hybrid input using LLM.
+        """
+        intents_list = ','.join([f"{intent['id']} ({intent['description']})" for intent in self.intents if intent['id'] != 'chat' and intent['id'] != 'hybrid'])
+        prompt = (f"You are an intent classifier. Given the user input, Extract the ACTION intent from this hybrid request."
+                  f"intent from this list: {intents_list}\n User Input: {user_input}\n"
+                  f"Respond with ONLY the intent ID, nothing else.")
+        
+        try:
+            response = ollama.generate(self.model, prompt, stream=False)['response'].strip().lower()
+            valid_ids = [intent['id'] for intent in self.intents if intent['id'] != 'chat' and intent['id'] != 'hybrid']
+            
+            for word in response.split():
+                if word in valid_ids:
+                    return word
+            return None
+        except Exception as e:
+            print(f"Error extracting action from hybrid: {e}")
+            return None
+        
+        
 if __name__ == '__main__':
     INTENTS_FILE = 'G:\\Projects\\Python\\Legion\\config\\intents.json'
     extractor = IntentExtractor(INTENTS_FILE)
