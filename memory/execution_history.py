@@ -41,7 +41,7 @@ class ExecutionHistory:
             action_tool = None
             
             if entry.get('type') == 'action':
-                action_tool = entry.get('tool_id')
+                action_tool = entry.get('action_tool')
             
             elif entry.get('type') == 'hybrid':
                 action_tool = entry.get('action', {}).get('action_tool')

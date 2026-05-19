@@ -217,7 +217,7 @@ class ContextWindow:
             
             lines.append(f"[{timestamp}] USER ({detected_intent}): {user_input}")
             
-            if entry_type == 'action' or 'chat':
+            if entry_type in ('action','chat'):
                 assistant = entry.get('assistant', '')
                 lines.append(f"Assistant ({entry_type}): {assistant}")
             
