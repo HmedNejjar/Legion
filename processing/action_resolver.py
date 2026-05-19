@@ -52,7 +52,7 @@ class ActionResolver:
             threshold (int): Min confirmations before action is considered "dominant"
 
         Returns:
-            tuple: (dominant_tool_dict, options_list)
+            tuple: (dominant_tool_dict, matching_tools_list)
             
             Cases:
             - (tool_dict, None): Dominant action found, return single tool
@@ -62,14 +62,11 @@ class ActionResolver:
         # First, check if the user has a preferred 'dominant' tool['intent_id'] for this intent
         dominant_tool_intent_id = self.history.get_dominant_action(intent_id, threshold)
         
+        # Get all matching tools for this intent
+        matching_tools = [tool for tool in self.tools.values() if tool.get('intent_id') == intent_id]
+        
         if dominant_tool_intent_id and dominant_tool_intent_id in self.tools:
-            return self.tools[dominant_tool_intent_id], None
-            
-        # Return all tools that match the intent's id
-        matching_tools = [
-            tool for tool in self.tools.values() 
-            if tool.get('intent_id') == intent_id
-        ]
+            return (self.tools[dominant_tool_intent_id], matching_tools)
         
         return None, matching_tools
     
