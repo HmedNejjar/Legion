@@ -183,13 +183,35 @@ class Legion:
         # Resolve intent to tools
         dominant_tool, matching_tools = self.resolver.get_tools_for_intent(intent_id, CONST['CONFIRMATION_THRESHOLD'])
         
-        # Case A: A dominant tool exists based on history or category
-        if dominant_tool:
+        # Check if intent has been learned
+        learned_default = self.history.is_learned(intent_id)
+        
+        #Case A: Dominant tool exists AND it's learned
+        if dominant_tool and learned_default:
             tier = dominant_tool.get('tier', 1)
-            # Check if user has historically approved this pairing
-            learned_default = self.history.get_dominant_action(intent_id) == dominant_tool['id']
+            narration = dominant_tool.get('narration', '')
+            outcome = dominant_tool.get('outcome', '')
+        
+            print(f"Auto-executing (learned): {dominant_tool['id']}")
+            self.tts.read(narration)
             
-            if self.tier_handler.handle(dominant_tool, tier, learned_default):
+            # TODO: Execute tool here
+            
+            # Save to history
+            self.context.save_exchange(self.exchanges[0], 
+                                       user_input= user_input,
+                                       intent= intent_id,
+                                       action_intent= intent_id,
+                                       action_tool= dominant_tool['id'],
+                                       action_result= outcome,
+                                       assistant_narration= narration)
+            
+        # Case B: Dominant tool exists but not learned (ask first)
+        elif dominant_tool and not learned_default:
+            tier = dominant_tool.get('tier', 1)
+            confirmed = self.tier_handler.handle(dominant_tool, tier, learned_default)
+            
+            if confirmed:
                 print(f"Executing: {dominant_tool['id']}")
                 narration = dominant_tool.get('narration', 'Executing action.')
                 self.tts.read(narration)
@@ -206,7 +228,7 @@ class Legion:
             
             else: self.tts.read("Aborting Operation, what would you like me to do.")
         
-        # Case B: Multiple potential tools found; ask user to choose
+        # Case C: Multiple potential tools found; ask user to choose
         elif matching_tools:
             self.tts.read(f"I found multiple ways to handle that. Which would you prefer?")
             for i, tool in enumerate(matching_tools):

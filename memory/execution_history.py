@@ -9,15 +9,53 @@ class ExecutionHistory:
     action_intent + action_tool occurrences to determine dominants.
     """
 
-    def __init__(self, context_window: ContextWindow) -> None:
+    def __init__(self, context_window: ContextWindow, threshold: int = 5) -> None:
         """
         Initializes the history tracker by loading existing data from a JSON file.
 
         Args:
             context_window (ContextWindow): The path to the JSON file where history is stored.
+            threshold (int): Minimum number of times an action must have been performed 
+                             to be considered "dominant" for an intent.
         """
         self.context = context_window
+        self.threshold = threshold
+        self.learned_defaults = self._load_learned_defaults
+    
+    @property  
+    def _load_learned_defaults(self):
+        """
+        Precomputes dominant actions for all intents based on the current history.
+
+        Returns:
+            dict: A mapping of intent_id to its dominant action_tool (if any).
+        """
+        learned = {}
+        all_intents = set()
         
+        # Get all intents from history
+        for entry in self.context.get_all():
+            intent = entry.get('detected_intent')
+            
+            if intent:
+                all_intents.add(intent)
+                
+        # Check if the intent is the dominant one
+        for intent in all_intents:
+            dominant = self.get_dominant_action(intent, self.threshold)
+            if dominant:
+                learned[intent] = dominant
+                
+        return learned
+    
+    def is_learned(self, intent_id: str) -> bool:
+        """Check if an intent has a learned default"""
+        return intent_id in self.learned_defaults
+    
+    def get_learned_action(self, intent_id: str) -> str | None:
+        """Get the learned default action for an intent, if it exists"""
+        return self.learned_defaults.get(intent_id)
+    
     def get_dominant_action(self, intent_id: str, threshold: int = 5) -> str | None:
         """
         Retrieves the action most frequently associated with a given intent, 
