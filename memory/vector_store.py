@@ -72,16 +72,23 @@ class VectorStore:
         """
         total_facts = self.collection.count()
         
-        # Calculate average confidence and access patterns
-        confidences = [meta['confidence'] for meta in self.metadata.values()]
-        accesses = [meta['access_count'] for meta in self.metadata.values()]
+        # Count facts by source
+        source_counts = {}
+        for meta in self.metadata.values():
+            source = meta.get('source', 'Unknown')
+            source_counts[source] = source_counts.get(source, 0) + 1
+        
+        # Get timestamps for age statistics
+        timestamps = [meta['timestamp'] for meta in self.metadata.values() if 'timestamp' in meta]
+        oldest_time = min(timestamps) if timestamps else None
+        newest_time = max(timestamps) if timestamps else None
         
         return {
             'total_facts': total_facts,
-            'avg_confidence': sum(confidences) / len(confidences) if confidences else 0,
-            'most_accessed': max(accesses) if accesses else 0,
             'metadata_tracked': len(self.metadata),
-            'sources': {m['source']: 1 for m in self.metadata.values()}  # Count by source
+            'sources': source_counts,
+            'oldest_fact': datetime.fromtimestamp(oldest_time).isoformat() if oldest_time else None,
+            'newest_fact': datetime.fromtimestamp(newest_time).isoformat() if newest_time else None
         }
         
     def extract_store_fact(self, user_input: str, exchange_type: str) -> bool:
@@ -232,7 +239,7 @@ class VectorStore:
             # Parse JSON
             consolidated_facts = json.loads(response)
             
-            if not isinstance(self.consolidate_facts, list):
+            if not isinstance(consolidated_facts, list):
                 print("Consolidation failed: LLM did not return a valid JSON array.")
                 return 0
             
@@ -275,5 +282,3 @@ if __name__ == '__main__':
     # Get all
     all_facts = vs.get_all_facts()
     print(f"\nAll facts: {all_facts}")
-
-    

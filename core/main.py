@@ -314,7 +314,8 @@ class Legion:
                                    action_intent= action_intent,
                                    action_tool= selected_tool['id'],
                                    action_result= action_result,
-                                   assistant_narration= f"{action_narration}\n{chat_response}")
+                                   action_narration= action_narration,
+                                   assistant_response= f"{action_narration}\n{chat_response}")
         
         self.vector_store.extract_store_fact(user_input, self.exchanges[2])
      
