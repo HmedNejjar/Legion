@@ -83,7 +83,7 @@ class Legion:
         # Memory & History
         self.context = ContextWindow(PATHS['HISTORY_PATH'], CONST['CONTEXT_WINDOW_SIZE'])
         self.history = ExecutionHistory(context_window=self.context)
-        self.vector_store = VectorStore(PATHS['DB_PATH'])
+        self.vector_store = VectorStore(PATHS['DB_PATH'], CONST['LLM_MODEL_NAME'])
         
         # Processing & Logic
         self.roles = ('assistant', 'user')
@@ -144,6 +144,7 @@ class Legion:
             chat_response = self.generate_chat_response(user_input, intent_id)
             self.tts.read(chat_response)
             self.context.save_exchange(exchange_type=self.exchanges[1], user_input= user_input, assistant_response= chat_response)
+            self.vector_store.extract_store_fact(user_input, self.exchanges[1])
             return
         else:
             # ACTION INTENT
@@ -314,6 +315,8 @@ class Legion:
                                    action_tool= selected_tool['id'],
                                    action_result= action_result,
                                    assistant_narration= f"{action_narration}\n{chat_response}")
+        
+        self.vector_store.extract_store_fact(user_input, self.exchanges[2])
      
 
     def _handle_camera(self, user_input: str, intent_id: str) -> None:
