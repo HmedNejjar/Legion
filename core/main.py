@@ -9,7 +9,7 @@ from processing.action_resolver import ActionResolver
 from processing.tier_handler import TierHandler
 from processing.intent_extractor import IntentExtractor
 from memory.execution_history import ExecutionHistory
-from memory.vectore_store import VectorStore
+from memory.vector_store import VectorStore
 from memory.context import ContextWindow
 from voice.tts import TextToSpeech
 from input.text import TextInput
@@ -412,6 +412,13 @@ class Legion:
         print(f"Total history entries: {self.context.count_exchanges}")
         print("✓ Session saved")
         
+        # Consolidate vector facts
+        print("Consolidating learned facts...")
+        self.vector_store.consolidate_facts()
+
+        # Show stats
+        stats = self.vector_store.get_stats()
+        print(f"Vector DB: {stats['total_facts']} facts")
 if __name__ == '__main__':
     session = Legion(input_mode="text")
     session.run()

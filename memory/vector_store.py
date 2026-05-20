@@ -193,6 +193,70 @@ class VectorStore:
         """
         self.collection.delete(ids=[fact_id])
         
+    def consolidate_facts(self) ->int:
+        """
+        Uses the LLM to analyze all stored facts and consolidate them by removing duplicates and merging similar facts
+
+        Returns:
+            int: The number of facts removed during consolidation.
+        """
+        all_facts = self.get_all_facts()
+        
+        if not len(all_facts) : return 0
+        
+        facts_list = "\n".join(f'- {fact}' for fact in all_facts)
+        
+        prompt = (
+        f"Consolidate these user facts by:\n"
+        f"1. Removing exact or near-exact duplicates\n"
+        f"2. Merging related facts into broader statements\n"
+        f"3. Resolving contradictions (keep most recent/likely)\n"
+        f"4. Removing vague or uninformative facts\n\n"
+        f"Facts:\n{facts_list}\n\n"
+        f"Return consolidated facts as a JSON array:\n"
+        f"['consolidated fact 1', 'consolidated fact 2', ...]\n"
+        f"Return ONLY valid JSON, nothing else.\n"
+        f"JSON: "
+    )
+        
+        try:
+            response = ollama.generate(self.llm_model, prompt, stream= False)['response'].strip()
+            
+            #Clean up markdown code if present
+            if response.startswith('```json'):
+                response = response[7:]
+            if response.startswith('```'):
+                response = response[3:]
+            if response.endswith('```'):
+                response = response[:-3]
+            # Parse JSON
+            consolidated_facts = json.loads(response)
+            
+            if not isinstance(self.consolidate_facts, list):
+                print("Consolidation failed: LLM did not return a valid JSON array.")
+                return 0
+            
+            remove_count = len(all_facts) - len(consolidated_facts)
+            
+            if remove_count > 0:
+                # Clear existing facts and metadata
+                all_ids = list(self.metadata.keys())
+                if all_ids:
+                    self.collection.delete(ids=all_ids)
+                self.metadata.clear()
+                
+                # Add back consolidated facts
+                for fact in consolidated_facts:
+                    self.add_fact(fact)
+                    
+                print(f"✓ Consolidated facts. Removed {remove_count} redundant facts.")
+            
+            return remove_count
+        
+        except Exception as e:
+            print(f"Consolidation failed: {e}")
+            return 0
+        
 if __name__ == '__main__':
     print(chromadb.__version__)
     vs = VectorStore(r'G:\\Projects\\Python\\Legion\\memory\\chromadb', 'qwen3:1.7b')
